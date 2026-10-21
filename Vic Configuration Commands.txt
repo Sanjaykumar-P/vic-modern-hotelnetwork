@@ -1,0 +1,588 @@
+#######----Floor 1 Distribution Switch ------#####
+
+en
+config t
+hostname DS-Switch-Floor1
+banner motd .
+Hi This Switch is the Floor 1 Operation Department Acting as a Distribution Switch and Access Switch
+.
+vlan 70
+name store
+exit
+vlan 80
+name Reception
+exit
+int gigabitEthernet 0/1
+switchport access vlan 70
+exit
+int gi0/2
+switchport access vlan 80
+exit
+do show vlan brief
+int gi0/0
+switchport trunk encapsulation dot1q
+switchport mode trunk
+exit
+do show interfaces trunk
+
+#######----Floor 2 Distribution Switch ------#####
+
+en
+config t
+hostname DS-Switch-Floor1
+banner motd .
+Hi This Switch is Floor2 Switch Configured as the DS and Access Switch for the Floor 2
+.
+vlan 30
+name Sales
+exit
+vlan 40
+name HR
+exit
+vlan 50
+name Finance
+exit
+int range gigabitEthernet 0/1-2
+switchport access vlan 30
+exit
+int range gigabitEthernet 0/3, gigabitEthernet 1/0
+switchport access vlan 40
+exit
+int range gigabitEthernet 1/1-2
+switchport access vlan 50
+exit
+int gi0/0
+Switchport trunk encapsulation dot1q
+switchport mode trunk
+exit
+
+
+#######----Floor 3 Distribution Switch ------#####
+
+vlan 10
+name IT
+exit
+vlan 20
+name Administrative
+exit
+vlan 60
+name Logistics
+exit
+int gi0/1
+switchport access vlan 20
+exit
+int range gigabitEthernet 1/0, gigabitEthernet 0/2
+switchport access vlan 10
+exit
+int gigabitEthernet 0/3
+switchport access vlan 60
+exit
+int gi0/0
+Switchport trunk encapsulation dot1q
+switchport mode trunk
+exit
+
+
+
+#######---- Floor Router 1 Inter-vlan Routing Commands ------#####
+
+en
+conf t
+ho Floor-RTR-1
+banner motd .
+Hi this Router is the Floor1-Router Inter & OSPF has Configured .
+int gigabitEthernet 0/3.1
+encapsulation dot1Q 70
+ip address 192.168.7.1 255.255.255.0
+exit
+int gigabitEthernet 0/3.2
+encapsulation dot1Q 80
+ip address 192.168.8.1 255.255.255.0
+exit
+
+#######---- Floor Router 2 Inter-vlan Routing Commands ------#####
+
+en
+conf t
+ho Floor-RTR-2
+banner motd .
+Hi this Router is Acting as a Floor 2 for OSPF routing and Inter-vlan ROuting
+.
+int gigabitEthernet 0/3.1
+encapsulation dot1Q 30
+ip address 192.168.3.1 255.255.255.0
+exit
+int gigabitEthernet 0/3.2
+encapsulation dot1Q 40
+ip address 192.168.4.1 255.255.255.0
+exit
+int gigabitEthernet 0/3.3
+encapsulation dot1Q 50
+ip address 192.168.5.1 255.255.255.0
+exit
+
+#######---- Floor Router 3 Inter-vlan Routing Commands ------#####
+
+en
+conf t
+ho Floor-RTR-3
+banner motd .
+Hi this Router is for Floor 3 Acting as a OSPF routing and Inter-vlan ROuting
+.
+int gi0/4
+no shut
+exit
+int gi0/4.1
+encapsulation dot1Q 10
+ip address 192.168.1.1 255.255.255.0
+exit
+int gigabitEthernet 0/4.2
+encapsulation dot1Q 20
+ip address 192.168.2.1 255.255.255.0
+exit
+int gigabitEthernet0/4.3
+encapsulation dot1Q 60
+ip address 192.168.6.1 255.255.255.0
+exit
+
+#######---- DHCP Server Configurations------#####
+
+ho DHCP-NTP-SERVER
+int gi0/0
+ip address 192.168.9.2 255.255.255.252
+no shut
+exit
+ip dhcp pool FLOOR1-VLAN70
+network 192.168.7.0 255.255.255.0
+default-router 192.168.7.1
+dns-server 8.8.8.8
+domain-name vic.com
+lease 1 23
+ip dhcp excluded-address 192.168.7.1
+ip dhcp pool FLOOR1-VLAN80
+network 192.168.8.0 255.255.255.0
+default-router 192.168.8.1
+dns-server 8.8.8.8
+domain-name vic.com
+ip dhcp excluded-address 192.168.8.1
+ip dhcp pool FLOOR2-VLAN30
+network 192.168.3.0 255.255.255.0
+default-router 192.168.3.1
+dns-server 8.8.8.8
+domain-name vic.com
+lease 1
+ip dhcp excluded-address 192.168.3.1
+ip dhcp pool FLOOR2-VLAN40
+network 192.168.4.0 255.255.255.0
+default-router 192.168.4.1
+dns-server 8.8.8.8
+lease 1
+exit
+ip dhcp excluded-address 192.168.4.1
+ip dhcp pool FLOOR2-VLAN50
+network 192.168.5.0 255.255.255.0
+default-router 192.168.5.1
+dns-server 8.8.8.8
+domain-name vic.com
+lease 1
+exit
+ip dhcp excluded-address 192.168.5.1
+ip dhcp pool FLOOR3-VLAN10
+network 192.168.1.0 255.255.255.0
+default-router 192.168.1.1
+dns-server 8.8.8.8
+domain-name vic.com
+lease 1
+exit
+ip dhcp excluded-address 192.168.1.1
+ip dhcp pool FLOOR3-VLAN20
+network 192.168.2.0 255.255.255.0
+default-router 192.168.2.1
+dns-server 8.8.8.8
+domain-name vic.com
+lease 1
+exit
+ip dhcp excluded-address 192.168.2.1
+ip dhcp pool FLOOR3-VLAN60
+network 192.168.6.0 255.255.255.0
+default-router 192.168.6.1
+dns-server 8.8.8.8
+domain-name vic.com
+lease 1
+exit
+ip dhcp excluded-address 192.168.6.1
+
+
+#######---- Interface Configurations for Routers------#####
+
+#######-----------Floor-RTR-1-----------#######
+
+int gi0/2
+ip add 192.168.100.1 255.255.255.0
+no shut
+exit
+int gi0/1
+ip add 10.10.10.1 255.255.255.252
+no shut
+exit
+int gi0/0
+ip add 10.10.10.5 255.255.255.252
+no shut
+exit
+
+#######-----------Floor-RTR-2----------#######
+
+int gi0/2
+ip add 192.168.110.1 255.255.255.0
+no shut
+exit
+int gi0/1
+ip add 10.10.10.2 255.255.255.252
+no shut
+exit
+int gi0/0
+ip add 10.10.10.10 255.255.255.252
+no shut
+exit
+
+#######-----------Floor-RTR-3----------#######
+
+int gi0/1
+ip add 10.10.10.6 255.255.255.252
+no shut
+exit
+int gi0/2
+ip add 10.10.10.9 255.255.255.252
+no shut
+int gi0/3
+ip add 192.168.120.1 255.255.255.0
+no shut
+exit
+int gi0/5
+ip add 192.168.9.1 255.255.255.252
+no shut
+exit
+int gi0/0
+ip address 192.168.9.5 255.255.255.252
+no shut
+exit
+
+
+#######-----------MLS Switch----------#######
+
+en
+conf t
+ho MLS-Core-Switch
+int gi0/1
+no switchport
+ip address 192.168.9.6 255.255.255.252
+no shut
+ip routing
+int gi0/0
+no switchport
+ip address 172.16.88.100 255.255.255.0
+no shut
+exit
+
+
+##########-------------OSPF----------------###########
+
+#########------------Floor-RTR-3--------------######
+router ospf 1
+network 192.168.9.4 0.0.0.3 area 0
+network 192.168.120.0 0.0.0.255 area 0
+network 192.168.9.0 0.0.0.3 area 0
+network 192.168.6.0 0.0.0.255 area 0
+network 192.168.1.0 0.0.0.255 area 0
+network 192.168.2.0 0.0.0.255 area 0
+network 10.10.10.4 0.0.0.3 area 0
+network 10.10.10.8 0.0.0.3 area 0
+exit
+
+#########------------Floor-RTR-1--------------######
+
+router ospf 1
+network 192.168.100.0 0.0.0.255 area 0
+network 192.168.7.0 0.0.0.255 area 0
+network 192.168.8.0 0.0.0.255 area 0
+network 10.10.10.0 0.0.0.3 area 0
+network 10.10.10.4 0.0.0.3 area 0
+exit
+
+#########------------Floor-RTR-2--------------######
+
+router ospf 1
+network 192.168.3.0 0.0.0.255 area 0
+network 192.168.4.0 0.0.0.255 area 0
+network 192.168.5.0 0.0.0.255 area 0
+network 192.168.110.0 0.0.0.255 area 0
+network 10.10.10.8 0.0.0.3 area 0
+network 10.10.10.8 0.0.0.3 area 0
+network 10.10.10.0 0.0.0.3 area 0
+
+#########------------Wireless-Floor1-RTR--------------######
+
+router ospf 1
+network 192.168.100.0 0.0.0.255 area 0
+
+#########------------Wireless-Floor2-RTR--------------######
+
+router ospf 1
+network 192.168.110.0 0.0.0.255 area 0
+exit
+
+#########------------Wireless-Floor3-RTR--------------######
+router ospf 1
+network 192.168.120.0 0.0.0.255 area 0
+
+#########------------MLS Default Route--------------######
+router ospf 1
+Network 192.168.4.0 0.0.0.3 area 0
+Default information originate always
+Exit
+
+Note add OSPF Route Also in the MLS.
+
+#########-----------DHCP server default route---------------##########
+
+ip route 0.0.0.0 0.0.0.0 gigabitEthernet 0/0 192.168.9.1
+
+#########------------IP Helper Address Configurations--------------######
+
+#########------------Floor-1-RTR-1--------------######
+
+int gigabitEthernet 0/3.1
+ip helper-address 192.168.9.2
+exit
+int gigabitEthernet 0/3.2
+ip helper-address 192.168.9.2
+exit
+
+#########------------Floor-2-RTR-2-------------######
+
+int gigabitEthernet 0/3.1
+ip helper-address 192.168.9.2
+exit
+int gigabitEthernet 0/3.2
+ip helper-address 192.168.9.2
+exit
+int gigabitEthernet 0/3.3
+ip helper-address 192.168.9.2
+exit
+
+#########------------Floor-3-RTR-3-------------######
+
+int gigabitEthernet 0/4.1
+ip helper-address 192.168.9.2
+exit
+int gigabitEthernet 0/4.2
+ip helper-address 192.168.9.2
+exit
+int gigabitEthernet 0/4.3
+ip helper-address 192.168.9.2
+exit
+
+#########------------Port-Security on Floor 3 Distribution Switch ----####
+
+int range gigabitEthernet 0/2, gigabitEthernet 1/0
+switchport mode access
+switchport port-security
+switchport-security mac-address sticky
+switchport port-security violation shutdown
+exit
+
+#########------------PAT ON MLS ----####
+
+int gi0/1
+ip nat inside
+exit
+int gi0/0
+ip nat outside
+exit
+ip access-list extended 100
+permit ip 192.168.100.0 0.0.0.255 any
+permit ip 192.168.7.0 0.0.0.255 any
+permit ip 192.168.8.0 0.0.0.255 any
+permit ip 192.168.1.0 0.0.0.255 any
+permit ip 192.168.2.0 0.0.0.255 any
+permit ip 192.168.3.0 0.0.0.255 any
+permit ip 192.168.4.0 0.0.0.255 any
+permit ip 192.168.5.0 0.0.0.255 any
+permit ip 192.168.6.0 0.0.0.255 any
+permit ip 192.168.110.0 0.0.0.255 any
+permit ip 192.168.120.0 0.0.0.255 any
+permit ip 192.168.9.0 0.0.0.3 any
+permit ip 192.168.9.4 0.0.0.3 any
+permit ip 10.10.10.0 0.0.0.3 any
+permit ip 10.10.10.4 0.0.0.3 any
+permit ip 10.10.10.8 0.0.0.3 any
+exit
+ip nat inside source list 100 interface gigabitethernet 0/0 overload
+
+
+#############------------SSH Configurations_________________#######:
+
+! Wireless-Floor1-RTR
+ip domain-name vic.com
+enable secret vic@2005
+crypto key generate rsa modulus 1024
+ip ssh version 2
+line vty 0
+login local
+transport input ssh
+exit
+username vicmanager privilege 15 password vic@2005
+
+! Floor-RTR-1
+ip domain-name vic.com
+enable secret vic@2005
+username vicmanager privilege 15 password vic@2005
+crypto key generate rsa modulus 1024
+ip ssh version 2
+line vty 0
+login local
+transport input ssh
+exit
+
+! Floor-RTR-2
+ip domain-name vic.com
+username vicmanager privilege 15 password vic@2005
+enable secret vic@2005
+crypto key generate rsa modulus 1024
+ip ssh version 2
+line vty 0
+login local
+transport input ssh
+
+! WIRELESS-FLOOR2-RTR
+ip domain-name vic.com
+enable secret vic@2005
+username vicmanager privilege 15 password vic@2005
+crypto key generate rsa modulus 1024
+ip ssh version 2
+line vty 0
+transport input ssh
+login local
+exit
+
+! Floor-RTR-3
+ip domain-name vic.com
+enable secret vic@2005
+username vicmanager privilege 15 password vic@2005
+crypto key generate rsa modulus 1024
+ip ssh version 2
+line vty 0
+transport input ssh
+login local
+exit
+
+! WIRELESS-FLOOR3_RTR
+ip domain-name vic.com
+enable secret vic@2005
+username vicmanager privilege 15 password vic@2005
+crypto key generate rsa modulus 1024
+ip ssh version 2
+line vty 0
+transport input ssh
+login local
+exit
+
+! MLS-Core-Switch
+ip domain-name vic.com
+crypto key generate rsa modulus 1024
+username vicmanager privilege 15 password vic@2005
+ip ssh version 2
+line vty 0
+transport input ssh
+login local
+exit
+enable secret vic@2005
+
+! DHCP-NTP-SERVER
+ip domain-name vic.com
+ip ssh version 2
+enable secret vic@2005
+username vicmanager privilege 15 password vic@2005
+crypto key generate rsa modulus 1024
+ip ssh version 2
+LINE VTY 0
+transport input ssh
+login local
+exit
+
+####################-----ACL----------------##################
+
+! Floor-RTR-1 (ACL 100, from your show access-lists output)
+ip access-list extended 100
+deny tcp any any eq 22
+permit ip 192.168.100.0 0.0.0.255 192.168.1.0 0.0.0.255
+permit ip 192.168.100.0 0.0.0.255 192.168.7.0 0.0.0.255
+permit ip 192.168.100.0 0.0.0.255 192.168.8.0 0.0.0.255
+deny ip 192.168.100.0 0.0.0.255 192.168.2.0 0.0.0.255
+deny ip 192.168.100.0 0.0.0.255 192.168.3.0 0.0.0.255
+deny ip 192.168.100.0 0.0.0.255 192.168.4.0 0.0.0.255
+deny ip 192.168.100.0 0.0.0.255 192.168.5.0 0.0.0.255
+deny ip 192.168.100.0 0.0.0.255 192.168.6.0 0.0.0.255
+deny ip 192.168.100.0 0.0.0.255 192.168.7.0 0.0.0.255
+deny ip 192.168.100.0 0.0.0.255 192.168.9.0 0.0.0.3
+permit ip any any
+exit
+
+! Floor-RTR-1 SSH block
+ip access-list extended SSH-BLK-NONIT
+deny tcp any any eq 22
+permit ip any any
+exit
+int gi0/3
+ip access-group SSH_BLK-NONIT in
+exit
+
+! Floor-RTR-2
+ip access-list extended 101
+deny tcp any any eq 22
+deny ip 192.168.110.0 0.0.0.255 192.168.2.0 0.0.0.255
+deny ip 192.168.110.0 0.0.0.255 192.168.3.0 0.0.0.255
+deny ip 192.168.110.0 0.0.0.255 192.168.4.0 0.0.0.255
+deny ip 192.168.110.0 0.0.0.255 192.168.5.0 0.0.0.255
+deny ip 192.168.110.0 0.0.0.255 192.168.6.0 0.0.0.255
+permit ip any any
+exit
+int gi0/2
+ip access-group 101 in
+exit
+
+! Floor-RTR-2 SSH block
+ip access-list extended SSH-BLK_NONIT
+deny tcp any any eq 22
+permit ip any any
+exit
+int gi0/3
+ip access-group SSH-BLK_NONIT in
+exit
+
+! Floor-RTR-3
+ip access-list extended 102
+deny tcp any any eq 22
+deny ip 192.168.120.0 0.0.0.255 192.168.2.0 0.0.0.255
+deny ip 192.168.120.0 0.0.0.255 192.168.3.0 0.0.0.255
+deny ip 192.168.120.0 0.0.0.255 192.168.4.0 0.0.0.255
+deny ip 192.168.120.0 0.0.0.255 192.168.5.0 0.0.0.255
+deny ip 192.168.120.0 0.0.0.255 192.168.6.0 0.0.0.255
+deny ip 192.168.120.0 0.0.0.255 192.168.9.0 0.0.0.3
+permit ip any any
+exit
+int gi0/3
+ip access-group 102 in
+exit
+
+! Floor-RTR-3 SSH block
+ip access-list extended SSH-BLOCK-NONIT
+deny tcp 192.168.6.0 0.0.0.255 any
+deny tcp 192.168.6.0 0.0.0.255 any eq 22
+deny tcp 192.168.2.0 0.0.0.255 any eq 22
+permit tcp any any eq 22
+permit ip any any
+exit
+int gi0/4
+ip access-group SSH-BLOCK-NONIT in
+exit
